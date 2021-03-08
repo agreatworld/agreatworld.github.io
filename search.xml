@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>三维变换中的矩阵</title>
+    <url>/2020/06/10/MatricesIn3DTransformation/</url>
+    <content><![CDATA[<h1 id="扩充三维世界"><a href="#扩充三维世界" class="headerlink" title="扩充三维世界"></a>扩充三维世界</h1><p>为了给诸多变换的实现扫清障碍，首先扩充三维世界的第四个分量，通常合并表示为<em>xyzw</em></p>
+<h2 id="Point"><a href="#Point" class="headerlink" title="Point"></a>Point</h2><p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E7%82%B9%E7%9A%84%E8%A1%A8%E7%A4%BA.png" alt="点"></p>
+<h2 id="Vector"><a href="#Vector" class="headerlink" title="Vector"></a>Vector</h2><p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E5%90%91%E9%87%8F%E7%9A%84%E8%A1%A8%E7%A4%BA.png" alt="向量"></p>
+<h2 id="点和向量的w分量"><a href="#点和向量的w分量" class="headerlink" title="点和向量的w分量"></a>点和向量的<em>w</em>分量</h2><p>我们知道<strong>点</strong>可以被平移而<strong>向量</strong>的平移并不改变其数学含义，<em>w</em>分量为0、1时正体现了这样的区别。</p>
+<p>在后文中，我们还将看到<em>w</em>分量的其他意义。</p>
+<h1 id="矩阵变换"><a href="#矩阵变换" class="headerlink" title="矩阵变换"></a>矩阵变换</h1><p>矩阵变换大致有平移、缩放、旋转、投影几种。</p>
+<p>要理解这些矩阵，首先我要告诉你的是：这一系列矩阵的根本来源是<strong>构造</strong>，先有需求，再有结果。请你暂时摒弃证明数学定理时的思维，我们不是要证明这些矩阵可以通过某种方式推导出来即其正确性，而是要<strong>构造出一种矩阵来解决需求</strong>。</p>
+<h2 id="平移矩阵"><a href="#平移矩阵" class="headerlink" title="平移矩阵"></a>平移矩阵</h2><p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E5%B9%B3%E7%A7%BB%E7%9F%A9%E9%98%B5.png" alt="平移矩阵"></p>
+<p>顾名思义，平移矩阵的功能是平移一个点。平移简言之即给原坐标的各分量分别加一个偏移量，暂且用<img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/P%E7%82%B9.png" alt="P点">表示待变换的点，后文中若无说明也使用这个点。</p>
+<p>需求已经明确了：将P点平移到<img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E5%B9%B3%E7%A7%BB%E5%90%8E%E7%9A%84P%E7%82%B9.png" alt="平移后的P点"></p>
+<p>即有以下等式：</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E5%B9%B3%E7%A7%BB%E5%B1%95%E5%BC%80%E5%BC%8F.png" alt="平移展开式"></p>
+<p>其中<strong>T(0, 1)<strong>表示</strong>平移矩阵</strong>第<strong>0</strong>行第<strong>1</strong>列的值。</p>
+<p>每一个方程有4个未知量，显然解不唯一，但是我们可以找出最简单的那个，所以就有了最初列出的平移矩阵。</p>
+<p>我们来看平移过程的数学表示</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E5%B9%B3%E7%A7%BB%E7%9F%A9%E9%98%B5%E5%BA%94%E7%94%A8.png" alt="平移矩阵应用"></p>
+<p>根据矩阵运算法则，很轻易地可以得到预期结果。</p>
+<p>平移矩阵逆矩阵的意义是反向平移，这个可以通过计算其逆矩阵得出：</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E5%B9%B3%E7%A7%BB%E7%9F%A9%E9%98%B5%E7%9A%84%E9%80%86%E7%9F%A9%E9%98%B5.png" alt="平移矩阵的逆矩阵"></p>
+<h2 id="缩放矩阵"><a href="#缩放矩阵" class="headerlink" title="缩放矩阵"></a>缩放矩阵</h2><p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E7%BC%A9%E6%94%BE%E7%9F%A9%E9%98%B5.png" alt="缩放矩阵"></p>
+<p>有了先前的推导过程，缩放矩阵的来历更为直观，此处不再赘述。</p>
+<p>通过计算得到缩放矩阵的逆矩阵</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E7%BC%A9%E6%94%BE%E7%9F%A9%E9%98%B5%E9%80%86%E7%9F%A9%E9%98%B5.png" alt="缩放矩阵逆矩阵"></p>
+<h2 id="旋转矩阵"><a href="#旋转矩阵" class="headerlink" title="旋转矩阵"></a>旋转矩阵</h2><p>旋转矩阵比上述两种要复杂一些，最终目的地是三维旋转矩阵，但是出发点是二维旋转矩阵。</p>
+<h3 id="二维旋转"><a href="#二维旋转" class="headerlink" title="二维旋转"></a>二维旋转</h3><p>P点的参数方程</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/P%E7%82%B9%E5%8F%82%E6%95%B0%E6%96%B9%E7%A8%8B.png" alt="P点参数方程"></p>
+<p>将P点按逆时针旋转Φ后P点坐标表示为</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/P%E7%82%B9%E6%97%8B%E8%BD%AC%E5%90%8E.png" alt="P点旋转后"></p>
+<p>将上述过程表示以矩阵，有如下等式</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/P%E7%82%B9%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5%E5%BC%8F.png" alt="P点旋转矩阵式"></p>
+<p>从此得出二维的旋转矩阵</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E4%BA%8C%E7%BB%B4%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5.png" alt="二维旋转矩阵"></p>
+<h3 id="三维旋转"><a href="#三维旋转" class="headerlink" title="三维旋转"></a>三维旋转</h3><p>首先把三维旋转与先前推导的二维旋转联系起来，想两个问题：二维旋转是怎样推导的？现在还能不能这样推导？</p>
+<p>三维旋转会保留坐标的其中一个分量不变。例如绕y轴旋转，则y坐标不变。（使用右手系）</p>
+<p>看到这里，我们挑个好欺负的先来两下：在平面直角坐标系中将一个点绕z轴旋转Φ。</p>
+<p>相比于二维旋转，x轴还是x轴，y轴也仍然是y轴，只是需要扩充一些数据来满足新的需求即不改变其z值。所以构造出以下矩阵</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E7%BB%95z%E8%BD%B4%E7%9A%84%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5.png" alt="绕z轴的旋转矩阵"></p>
+<p>这个矩阵的推导可以说是水到渠成，那么能不能用类似的思维来推导绕另外两轴旋转的矩阵呢？</p>
+<p>以绕x轴旋转为例。根据右手定则，绕x轴旋转时三维坐标系中的y轴等价于二维坐标系的x轴，而三维坐标系中的z轴等价于二维坐标系中的y轴，所以有以下结果</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E6%8E%A8%E5%AF%BC%E7%BB%95x%E8%BD%B4%E7%9A%84%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5.png" alt="推导绕x轴的旋转矩阵"></p>
+<p>再结合不改变x坐标等要求有</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E7%BB%95x%E8%BD%B4%E7%9A%84%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5.png" alt="绕x轴的旋转矩阵"></p>
+<p>同理有最后一个旋转矩阵</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E7%BB%95y%E8%BD%B4%E7%9A%84%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5.png" alt="绕y轴的旋转矩阵"></p>
+<p>虽然旋转矩阵的推导和形式比平移矩阵或缩放矩阵更为复杂，但其逆矩阵比先前两者都要简单。</p>
+<p>由于这三个旋转矩阵都是正交矩阵，所以其逆矩阵等于其转置矩阵，这在计算上节省了不少性能。旋转矩阵逆矩阵的几何意义也非常明确：反向旋转。</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5%E9%80%86%E7%9F%A9%E9%98%B5.png" alt="旋转矩阵逆矩阵"></p>
+<p><strong>不论是二维或三维，上述矩阵的应用前提是目标单位处于坐标系原点，对于非原点坐标，需要先采用其他变换如平移将其变换至原点，旋转之后再复原。</strong></p>
+<h2 id="绕任意轴的旋转矩阵"><a href="#绕任意轴的旋转矩阵" class="headerlink" title="绕任意轴的旋转矩阵"></a>绕任意轴的旋转矩阵</h2><p>旋转轴是用三维向量来表示的，我们要做的是以给出的旋转轴为基础建立一个新的三维坐标系，旋转轴即其轴之一。</p>
+<p>现在已经有一轴，还需要再找出一轴，第三轴可由叉乘得出。</p>
+<p>第二轴的寻找是有数学规律在其中的：将旋转轴绝对值最小的分量置为0，再交换剩下两分量，并将两分量中的第一个置负。</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E7%BB%95%E4%BB%BB%E6%84%8F%E8%BD%B4%E6%97%8B%E8%BD%AC%E8%AE%A1%E7%AE%97%E5%B1%80%E9%83%A8%E5%9D%90%E6%A0%87%E7%B3%BB.png" alt="绕任意轴旋转计算局部坐标系"></p>
+<p><strong>r</strong>是给定的任意旋转轴。</p>
+<p>应用这个矩阵之后，在新的坐标系中，给定的旋转轴就是原<em>x</em>轴，计算的第二轴是原<em>y</em>轴，叉乘得出的为原<em>z</em>轴。所以接下来的旋转用绕<em>x</em>轴旋转的旋转矩阵即可，最后不要忘记反变换回去。</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E7%BB%95%E4%BB%BB%E6%84%8F%E8%BD%B4%E6%97%8B%E8%BD%AC.png" alt="绕任意轴旋转"></p>
+<h2 id="万向节锁"><a href="#万向节锁" class="headerlink" title="万向节锁"></a>万向节锁</h2><p>这种旋转也被称为欧拉变换，如果将绕*x(roll)，y(head)，z(pitch)*轴旋转的矩阵联结，我们会发现一个无法规避的问题：万向节锁（Gimbal Lock）</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E4%B8%89%E8%BD%B4%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5%E8%81%94%E7%BB%93.png" alt="三轴旋转矩阵联结"></p>
+<p>当<code>cosp = 0</code>时，矩阵中的[2, 0]、[2, 2]两个值始终为0。显然其不该如此，因为这两个值是受<em>h、p</em>共同影响的。这就是万向节锁的根本原因。</p>
+<p>如果你从未了解过万向节锁，可以去查阅一些相关资料，只是仅从动画层面来解释万向节锁多少有些难以理解。</p>
+<p><em>顺便一提，在Unity中测试时发现不论模型的朝向如何，绕y轴转时始终是绕世界坐标系的y轴旋转，而非本地坐标系。</em></p>
+<h2 id="投影矩阵"><a href="#投影矩阵" class="headerlink" title="投影矩阵"></a>投影矩阵</h2><p>投影是将一定范围内的对象映射到某一平面的过程。</p>
+<p>投影矩阵并未某一特定矩阵，根据不同的需要可以有不同的投影策略。在图形学或游戏中，最常用的两种分别是正交投影和透视投影。</p>
+<h3 id="正交投影"><a href="#正交投影" class="headerlink" title="正交投影"></a>正交投影</h3><p>正交投影前后不改变两点之间的距离，平行线投影后仍然是平行线。所以，哪怕粗暴地将某个图元的某个坐标改为投影平面位置也称得上是一种正交投影。</p>
+<p>正交投影矩阵通常用<code>(l, r, b, t, n, f)</code>6个标量来定义，分别代表<em>left, right, bottom, top, near, far</em>六个平面。在此<em>AABB Box</em>范围内的一切会被投影到某一平面，进入下一阶段的处理且有机会被渲染在显示器上，不过这是渲染管线的事儿了。</p>
+<p><em>l, r, b ,t, n, f</em>定义的<em>box</em>接下来会被按照一定策略变换，不同的图形库有不同的策略，OpenGL最终将其变换成一个最小点为<code>(-1, -1, -1)</code>最大点为<code>(1, 1, 1)</code>的远平面，DirectX则是从<code>(-1, -1, 0)</code>到<code>(1, 1, 1)</code>的长方体。变换的方式是平移和缩放。</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E6%AD%A3%E4%BA%A4%E6%8A%95%E5%BD%B1%E7%9F%A9%E9%98%B5.png" alt="正交投影矩阵"></p>
+<p>这是OpenGL中的正交投影矩阵<strong>雏形</strong>，平移矩阵的结果是将定义的<em>box</em>中心平移到原点，缩放矩阵则是将<em>box</em>的长宽高都变换为2（-1~1）。在几何上，将<code>(l, b, n)</code>变换到<code>(-1, -1, 1)</code>，将<code>(r, t, f)</code>变换到<code>(1, 1, -1)</code>，其内部的坐标也变换到了相应的位置。</p>
+<p>注意这并不是最终应用的结果，由于OpenGL使用的右手系是面向负z轴的，所以从数字上来说，近平面的值要大于远平面，为了便于用户理解，还会进行一次对称变换，将其改为左手系使其迎合近平面值小远平面值大的习惯。</p>
+<p>下面是手性变换时用到的矩阵，并不难理解：</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E5%9D%90%E6%A0%87%E7%B3%BB%E6%89%8B%E6%80%A7%E5%8F%98%E6%8D%A2.png" alt="坐标系手性变换"></p>
+<p>如之前所述，DirectX的策略并不相同（需要将z值映射到[0, 1]之间），但核心思想与OpenGL是一致的。</p>
+<h3 id="透视投影"><a href="#透视投影" class="headerlink" title="透视投影"></a>透视投影</h3><p>与正交投影相比，透视投影后的平行线会在无穷远处相交，更复杂也更符合现实世界，我们的视觉就是透视投影。</p>
+<p>透视投影范围的定义与正交投影有稍许不同，但同样是六个变量。可以想象现实场景，我们的可视范围不会是一个方体，而是一个四棱锥，最终目标仍然是要将这个可视体（平截头体）变换为位于原点的正方体（或长方体），如下图所示</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E5%B9%B3%E6%88%AA%E5%A4%B4%E4%BD%93%E5%8F%98%E6%8D%A2%E4%B8%BA%E7%AB%8B%E6%96%B9%E4%BD%93.png" alt="平截头体变换为立方体"></p>
+<p>现在要先将平截头体变换为一个方体，从而可以利用正交投影中的矩阵。</p>
+<p>这个矩阵的来源同样是<strong>构造</strong>。</p>
+<p>根据相似三角形</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E9%80%8F%E8%A7%86%E6%8A%95%E5%BD%B1%E7%9B%B8%E4%BC%BC%E4%B8%89%E8%A7%92%E5%BD%A2.png" alt="透视投影相似三角形"></p>
+<p>平截头体内的一点会以如下方式变换：</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E5%B9%B3%E6%88%AA%E5%A4%B4%E4%BD%93%E5%86%85%E4%B8%80%E7%82%B9%E7%9A%84%E5%8F%98%E6%8D%A2.png" alt="平截头体内一点的变换"></p>
+<p>而近平面上的点变换前后是一致的：</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E9%80%8F%E8%A7%86%E6%8A%95%E5%BD%B1%E8%BF%91%E5%B9%B3%E9%9D%A2%E7%82%B9%E7%9A%84%E5%8F%98%E6%8D%A2.png" alt="透视投影近平面点的变换"></p>
+<p>结合以上要求，最终得到的压缩矩阵是：</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E5%B9%B3%E6%88%AA%E5%A4%B4%E4%BD%93%E5%8F%98%E6%8D%A2%E4%B8%BA%E7%AB%8B%E6%96%B9%E4%BD%93%E7%9F%A9%E9%98%B5.png" alt="平截头体变换为立方体矩阵"></p>
+<p>将平截头体变换为方体之后，我们就回到了正交投影的轨道上，联结正交投影矩阵得到透视投影矩阵：</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E9%80%8F%E8%A7%86%E6%8A%95%E5%BD%B1%E7%9F%A9%E9%98%B5.png" alt="透视投影矩阵"></p>
+<p>同样要注意，这不是最终矩阵。</p>
+<p>经过透视投影后图元的分布情况：</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E9%80%8F%E8%A7%86%E6%8A%95%E5%BD%B1z%E5%9D%90%E6%A0%87%E5%88%86%E5%B8%83%E5%9B%BE.png" alt="透视投影z坐标分布图"></p>
+<p>显然，当<code>near = 1</code>时靠近近平面一侧的z坐标分布非常疏，大部分坐标集中在<strong>远平面</strong>（相对熟悉OpenGL的读者别忘记手性转换）。</p>
+<p>大部分时候数学库是通过<code>(fov, aspect, far, near)</code>四个参数来定义平截头体的，通过数学手段计算所需值代入即可。</p>
+<h1 id="法线变换"><a href="#法线变换" class="headerlink" title="法线变换"></a>法线变换</h1><p>上述变换都是针对点而言的，如果直接应用在法线（向量）上，结果不如预期：</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E6%95%B0%E5%AD%A6/%E6%B3%95%E7%BA%BF%E5%8F%98%E6%8D%A2%E7%A4%BA%E6%84%8F%E5%9B%BE.png" alt="法线变换示意图"></p>
+<p>解决方法是计算变换矩阵的逆矩阵的转置。</p>
+<blockquote>
+<p>The transpose of the inverse can be used to transform normals. </p>
+</blockquote>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><em>Real-Time Rendering 4th</em></p>
+]]></content>
+      <categories>
+        <category>computer graphics</category>
+      </categories>
+      <tags>
+        <tag>mathematics</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>PathTracing</title>
+    <url>/2020/10/01/PathTracing/</url>
+    <content><![CDATA[<h1 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h1><p>PathTracing是实现光线追踪的一种方法，与Whitted-Style Ray Tracing不同，路径追踪是物理真实的。如果渲染的是现实中存在的模型，那么他们的outlook是可以达到肉眼无法区分的一致性，误差仅存在于计算精度。</p>
+<p>Whitted-Style Ray Tracing的大致思路如下：从摄像机向某一方向打出一条光线，光线与场景中的物体相交，计算交点的颜色，其中需要继续“反射”光线递归性计算。</p>
+<p>路径追踪的实现基础也是如此，只是在“计算交点颜色”这一步中用物理学，准确地说是辐射度量学(Radiometry)来保证计算结果的物理真实性。</p>
+<h1 id="Radiometry"><a href="#Radiometry" class="headerlink" title="Radiometry"></a>Radiometry</h1><ol>
+<li>Energy: just what u thought, which measured in units of joules</li>
+<li>Power / Flux: energy emitted, reflected, transmitted or received, per unit time</li>
+<li>Intensity: power per unit solid angle, emitted by a point light source</li>
+<li>Irradiance: power per unit area incident on a surface point</li>
+<li>Radiance: <ol>
+<li>power emitted, reflected, transmitted or received by a surface, per unit solid angle, per projected unit area</li>
+<li>irradiance per unit solid angle</li>
+<li>intensity per projected unit area</li>
+</ol>
+</li>
+</ol>
+<p>在场景中所有对光的描述都是基于radiance的。我们已经可以看到，不论是在Whitted-Style RayTracing还是最常见的Blinn-Phong着色模型中都并不涉及这些概念，自然不具备物理真实性。</p>
+<h1 id="BRDF"><a href="#BRDF" class="headerlink" title="BRDF"></a>BRDF</h1><p>为什么需要Bidirectional Reflectance Distribution Function？</p>
+<p>在之前简略提到的Whitted-Style RayTracing过程中，细心的小伙伴能够发现“反射”是打了引号的。在现实场景中，一条光线打在物体表面后，一部分光会被反射，那么是如何反射呢？我们知道光滑表面和粗糙表面会造成两种区别较大的现象：镜面反射和漫反射，其中对漫反射的简单理解就是一条光线打中后被均匀地向整个半球面反射，这与BRDF有一定相似性。</p>
+<p>双向反射分布函数就是描述了一条光线打在物体表面后，有多少光会被反射到某个方向上的这样一个函数。</p>
+<p>在宏观上，BRDF可被理解为“材质”。这很好make sense：光线打在表面，我们会看到高亮区域还是仅仅颜色变化？抑或是沉重的质感还是轻盈？这可不就是材质的作用。</p>
+<h1 id="The-Rendering-Equation"><a href="#The-Rendering-Equation" class="headerlink" title="The Rendering Equation"></a>The Rendering Equation</h1><p><a href="http://www.cse.chalmers.se/edu/year/2016/course/TDA361/rend_eq.pdf">Paper Written by Kajiya in 1986</a> 给出了渲染方程的定义以及其意义。</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/PathTracing/the-rendering-equation.png" alt="The Rendering Equation"></p>
+<p>表达式已经给出，现在需要做的就是求解。注意，我们只要这个积分的数值解，所以完全不必去求其不定积分，况且成功解出的可能性微乎其微。</p>
+<p>正着是采取一些数值方法求近似解，譬如<a href="https://zh.wikipedia.org/zh-cn/%E8%92%99%E5%9C%B0%E5%8D%A1%E7%BE%85%E6%96%B9%E6%B3%95">Monte Carlo数值方法 wiki</a>。</p>
+<p>要得到一个像素点较为准确的着色结果，无疑需要许多条反射光线来distribute。这听起来很有道理，一根光线打到物体表面，反射出20条甚至更多光线继续计算，最终将这些结果做一个平均得到较为理想的结果，并且也符合Monte Carlo积分的思维。但是仔细想想，这里面有一个隐藏问题：指数爆炸。一条光线产生了20条反射光线，那么下一次递归就会有400条光线，即使在当今的硬件条件下，这也是不可接受的。</p>
+<p>那么光线与场景相交一次反射光线的数量限制在多少才能够避免指数爆炸呢？只能是1。可是这样又会造成结果极大的偏差或噪点过多。</p>
+<p>这里给出一种解决方法是对每一个像素点重复计算结果，每次反射都只选取一个方向进行递归计算。显然，对每个像素点的采样次数越多，结果就会越理想，同时性能消耗也会更大，非常典型的trade-off。</p>
+<h1 id="对光源采样"><a href="#对光源采样" class="headerlink" title="对光源采样"></a>对光源采样</h1><p>我们知道，看到某个物体是因为光线进入了眼睛。随着递归深入，会发现并不是所有光线最终都能打到光源上，或者说是有效的，那么这部分计算就算是徒劳无功了，这是我们要规避的。规避的方法正如看到的那样：对光源采样。</p>
+<p>Monte Carlo积分要求对积分区域进行基于某一概率密度函数的采样，积分区域的变化不仅直接导致积分限和积分式的变化，还改变了采样区域。</p>
+<p>在此之前，我们计算的是在相交点的上半球的相应积分，如今要转换到光源区域上，当然，这里采用的正是Area Light Source，由此引出Radiometry中的各概念定义。如果这些概念稍微熟悉的话，不难发觉现在面对的问题是如何将单位面积转化为对应于一个半球的立体角。</p>
+<p>投影到球面等价于投影到与投影区域中心和球心连线垂直的那个平面。如此，再联立solid angle定义得出</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/PathTracing/%E5%AF%B9%E5%85%89%E6%BA%90%E9%87%87%E6%A0%B7%E7%A7%AF%E5%88%86%E8%BD%AC%E6%8D%A2.png" alt="对光源采样积分转换"></p>
+<ul>
+<li><p>x: 相交点对应半球的球心</p>
+</li>
+<li><p>x‘: 光源区域中心</p>
+</li>
+<li><p>dw’: 对相交点对应半球的微分立体角</p>
+</li>
+<li><p>dA’: 光源区域微分面积</p>
+</li>
+<li><p>θ’: 光源区域法线与光源区域中心和半球球心连线的夹角</p>
+</li>
+</ul>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/PathTracing/%E5%AF%B9%E5%85%89%E6%BA%90%E7%A7%AF%E5%88%86%E7%A4%BA%E6%84%8F%E5%9B%BE.png" alt="对光源积分示意图"></p>
+<p>只考虑半球的原因是光线不会被反射到下半球面。</p>
+<h1 id="Russian-Roulette"><a href="#Russian-Roulette" class="headerlink" title="Russian Roulette"></a>Russian Roulette</h1><p>现在，每一次对相交点着色要计算三种contribution：本身的自发光、光源对着色点的直接光照、场景中其他物体对着色点的间接光照。</p>
+<p>其中间接光照的思路与Whitted-Style RayTracing中是一致的，继续出射光线递归求交，什么时候才停止不再继续递归呢？采用<a href="https://zh.wikipedia.org/zh-cn/%E4%BF%84%E7%BE%85%E6%96%AF%E8%BC%AA%E7%9B%A4">俄罗斯轮盘赌 wiki</a>的思路来处理这个问题。</p>
+<p>给定某个概率，若命中才继续向下计算间接光着色，否则不再继续递归。这种方式无疑会造成结果的不准确，因为这是一个概率性问题，没可能每次计算都得到相同的结果，更何况这样一个概率还是随意设定的。事实上，在这各局部问题中，有一个巧妙的treat可以减小误差。引入俄罗斯轮盘赌的目的仅在给递归一个停止的可能性，绝不希望对渲染结果造成较大的质量损失。</p>
+<p>如果计算命中与不命中的期望：<code>L = P * result + (1 - P) * 0</code>（若未通过俄罗斯轮盘赌，计算结果为0）</p>
+<p>巧妙的是，如果用<code>result / P</code>代替<code>result</code>，我们可以得到其期望不变的结果，这是我们想要的。</p>
+<p>既然如此，那么<code>P</code>设置的大小对渲染结果有没有影响呢？答案是有。</p>
+<p>下面给出几张不同<code>P</code>渲染的结果图（Sample Per Pixel = 1）</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/PathTracing/0.001P_RR.png" alt="0.001P_RR"></p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/PathTracing/0.01P_RR.png" alt="0.01P_RR"></p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/PathTracing/0.1P_RR.png" alt="0.1P_RR"></p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/PathTracing/0.6P_RR.png" alt="0.6P_RR"></p>
+<p>随着<code>P_RR</code>增大，我们可以大致看出这些变化：</p>
+<ul>
+<li>光源区域的天花板变亮</li>
+<li>整个场景变亮</li>
+<li>渲染结果的白色噪点变多</li>
+</ul>
+<p><strong>天花板变亮：</strong>天花板与面光源平行，所以只有间接光照能够达到。之前已经提到过，<code>P_RR</code>越大，间接光照的计算结果越准确。当概率很小很小时，一次间接光照都不会计算，所以表现出来黑色。</p>
+<p><strong>场景变亮：</strong>原因同样是间接光照的计算次数。值得一提的是，假设间接光可以递归计算无数次，结果并不会趋于无穷大，而是收敛到某一上界，从自然界现象就可以得出这一结论。</p>
+<p><strong>白色噪点变多：</strong>这与间接光照有关。其实这是传统的Monte Carlo方法无法根本解决的一个问题，并且这是其渲染结果唯一的失真。可以采用重要性采样等方法来降低采样的方差以减少噪点。</p>
+<h1 id="What-we-didn’t-cover-here"><a href="#What-we-didn’t-cover-here" class="headerlink" title="What we didn’t cover here"></a>What we didn’t cover here</h1><p>尽管这里已经讨论了不少问题，但仍然有很多东西没有提及。譬如：</p>
+<ul>
+<li>光线如何与物体求交</li>
+<li>光线求交时的加速结构</li>
+<li>Radiance和最终在monitor上显示出来的颜色有什么关系</li>
+<li>…</li>
+</ul>
+<h5 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h5><p><a href="http://www.cse.chalmers.se/edu/year/2016/course/TDA361/rend_eq.pdf"><em>The Rendering Equation</em> by Kajiya</a></p>
+<p><a href="https://www.cs.princeton.edu/courses/archive/fall10/cos526/papers/zimmerman98.pdf"><em>Developing the Rendering Equations</em> by Kurt Zimmerman</a></p>
+<p><a href="https://sites.cs.ucsb.edu/~lingqi/teaching/games101.html"><em>games101 lecture 13-16</em> by Linqi Yan</a></p>
+<p><a href="https://www.scratchapixel.com/code.php?id=3&origin=/lessons/3d-basic-rendering/introduction-to-ray-tracing">一个200+行的Whitted-Style RayTracer</a></p>
+]]></content>
+      <categories>
+        <category>computer graphics</category>
+      </categories>
+      <tags>
+        <tag>offline rendering</tag>
+        <tag>raytracing</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>讲不清渲染管线我是老母猪</title>
+    <url>/2020/04/21/RealTimeRenderingPipeline/</url>
+    <content><![CDATA[<h1 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h1><p>渲染管线并不是一头捕捉的稀有精灵，我们要有足够的耐心去扔胶囊。这篇文章将会是一幅架在渲染管线面前的透视镜，在透视buff加持下，任何妖魔鬼怪都没有蹲草的机会(●’◡’●)。</p>
+<h1 id="什么是渲染管线"><a href="#什么是渲染管线" class="headerlink" title="什么是渲染管线"></a>什么是渲染管线</h1><h2 id="渲染"><a href="#渲染" class="headerlink" title="渲染"></a>渲染</h2><p>渲染是计算机将图元在显示器上显示的过程，譬如郭富城想在屏幕左半边儿画条龙，从指令发出到最终结果出现在屏幕上的这个过程即渲染。</p>
+<h2 id="管线"><a href="#管线" class="headerlink" title="管线"></a>管线</h2><p>管线即我们熟知的流水线，没错就是工厂里并不罕见的流水线。</p>
+<p>流水线是工业革命的产物，而其在图形学中的应用源自于程序员对性能的追求。</p>
+<p>至于为什么流水线能提高生产效率，任意一位工厂老板都会说的更条理清晰。</p>
+<h1 id="流水线里的四大天王"><a href="#流水线里的四大天王" class="headerlink" title="流水线里的四大天王"></a>流水线里的四大天王</h1><p>这条流水线通常会被分为几个阶段以便于描述，可以按功能划分，也可以按实现方式划分。大多数情况下，我们都是与前者打交道，后者与硬件的联系更密切。</p>
+<p>我们按功能将渲染管线顺序划分为四个（大）阶（天）段（王）：</p>
+<ol>
+<li>应用程序阶段（Application）</li>
+<li>几何阶段（Geometry Processing）</li>
+<li>光栅化阶段（Rasterization）</li>
+<li>像素处理阶段（Pixel Processing）</li>
+</ol>
+<h2 id="应用程序阶段"><a href="#应用程序阶段" class="headerlink" title="应用程序阶段"></a>应用程序阶段</h2><p>应用程序阶段是渲染管线的入口，也就是“在屏幕左半边儿画条龙”指令的发出。此阶段之所以被称为“应用程序阶段”，就是因为这类指令是从应用程序中发出的，例如CAD、3DMax等，当然还有我们画龙的程序。</p>
+<p>此时，我们完全处于CPU的环境中，完全没GPU的事儿。</p>
+<p>模型的加载、解析，碰撞检测以及碰撞结果，对外设事件的监听等工作会在这个时候进行，但显然除了模型的加载与解析，其他的例子都与渲染不搭。</p>
+<p>有必要说明的是，这个阶段是程序员完全可控的，那都是自己写的代码没有不可控的道理。<strong>有必要补充的是，既然这里说明了此阶段完全可控，那么后续的阶段必然非完全可控，甚至有的完全不可控。</strong></p>
+<h2 id="几何阶段"><a href="#几何阶段" class="headerlink" title="几何阶段"></a>几何阶段</h2><p>对图形工作者而言，几何阶段是最为复杂的阶段，因为GPU在这里进入我们的视野，同时几何阶段又是高度可控的。</p>
+<h3 id="小四大天王"><a href="#小四大天王" class="headerlink" title="小四大天王"></a>小四大天王</h3><p>随着谭咏麟、梅艳芳、张国荣等老一辈歌手在九十年代初逐渐淡出乐坛，几个新人先后逐步走上荧幕，后来被媒体一齐宣传为四大天王。</p>
+<p>随着四人先后淡出，谭咏麟在2004年抛出了新四大天王的概念，不过是哪四位我不告诉你(●ˇ∀ˇ●)。我要告诉你的是几何阶段里的“小四大天王”：</p>
+<ol>
+<li>顶点着色（Vertex Shading）</li>
+<li>投影（Projection）</li>
+<li>裁剪（Clipping）</li>
+<li>屏幕映射（Screen Mapping）</li>
+</ol>
+<p>这四个子阶段同样是按功能划分的。</p>
+<h3 id="顶点着色"><a href="#顶点着色" class="headerlink" title="顶点着色"></a>顶点着色</h3><p>游戏制作中的着色器就是从这里身穿神隐斗篷（神秘感）手持破魔刀进入程序员视线的，这把破魔刀确实斩倒了一片游戏程序员。</p>
+<p>先来说说什么是着色：着色是计算光照在材质表面的效果这一过程，着色器程序就是实现这一计算的程序。</p>
+<p>顶点着色的主要工作是计算顶点坐标以及输出程序员希望得到的数据譬如法线、贴图坐标。</p>
+<p>曾经大部分的顶点着色是根据顶点坐标、法线等信息计算光照在该处表现的颜色，并将最终结果（颜色值）存储在顶点数据中，在后续阶段中，这个颜色会被包含该顶点的图元自动插值处理。但那是曾经辉煌的顶点着色器，随着现代GPU的出现，顶点着色器的“着色”能力被无情剥夺，沦为任劳任怨的打工仔＞︿＜，只为计算顶点相关数据而不计算光照效果，真正的着色权转移到了还未出场的片段着色器手中。</p>
+<p>接下来我要阐述的是如何计算顶点相关数据，但不包含涉及到的数学知识。</p>
+<p>加载的模型最初在局部空间中，通过model transform把模型的坐标都转换到唯一的世界坐标系中，这个世界坐标系是一个欧氏空间（对应即将提到的齐次空间）。</p>
+<p>接下来是view transform视图变换，把模型变换到一个以摄像机为原点的视图空间（欧式空间）中。摄像机就是现实中我们的眼睛，在世界空间中有一个坐标和一个朝向，这很好理解。<strong>为了方便投影和裁剪，</strong>摄像机和所有模型都会被变换到视图空间中。视图变换的目的是把摄像机放置在原点并设置其朝向，但是具体的朝向与图形库有关，OpenGL采取右手系（摄像机面向-z轴，上面是+y轴，+x轴指向右方），而DirectX采取左手系。</p>
+<p>按功能区分的顶点着色子阶段就到这里结束。顶点着色的计算是在GPU中执行的，但是此时GPU只是被当工作普通的CPU使用，GPU的图形特性并没有得到展示的机会。</p>
+<h6 id="顶点着色之后的可选阶段"><a href="#顶点着色之后的可选阶段" class="headerlink" title="顶点着色之后的可选阶段"></a>顶点着色之后的可选阶段</h6><p>顶点着色之后有三个可选的操作，依次是：</p>
+<ol>
+<li>曲面细分（根据摄像机远近来改变图元绘制的精度以提高性能）</li>
+<li>几何着色（典型的应用是粒子特效和毛发渲染）</li>
+<li>Stream Output（将得到的数据输出，管线到此为止不再继续）</li>
+</ol>
+<h3 id="投影"><a href="#投影" class="headerlink" title="投影"></a>投影</h3><p>常见的投影策略有正交投影和透视投影，没有概念的读者一查便知。</p>
+<p>在2D游戏项目中，一般使用正交投影；而透视投影则是在3D游戏项目中应用广泛。通常投影方式会作为摄像机的属性公开给用户。</p>
+<p>与前两次变换一样，投影也是用矩阵来实现的，所以有时也被看作是几何变换的一部分（譬如Unity Shader Lab中的MVP矩阵）。投影之后，我们就说模型处于裁剪坐标系中，与之前不同，这是一个齐次坐标系。</p>
+<h6 id="几何变换"><a href="#几何变换" class="headerlink" title="几何变换"></a>几何变换</h6><p>几何变换是model transform、view transform、projection transform的统称，并且是完全可控的，之后的阶段除了像素处理高度可编程，其他处理大都交给了固定硬件完成，不过对外提供了一定的配置空间。</p>
+<h3 id="裁剪"><a href="#裁剪" class="headerlink" title="裁剪"></a>裁剪</h3><p>在裁剪之前，先要进行透视除法，这会把模型变换到三维的<strong>标准设备坐标系（欧式空间）</strong>中。</p>
+<p>裁剪以统一的观察体为标准，这个观察体是一个正方体，两个极端点分别是（-1，-1，-1）和（1，1，1）。但是用户也可以加入其他的裁剪平面。</p>
+<p>完全在观察体内的图元会被完全保留；部分在观察体内的图元会被切割；完全不在观察体内的图元会被丢弃。</p>
+<p>经过这一系列的矩阵变换，z坐标会被存储到z缓冲中。</p>
+<h3 id="屏幕映射"><a href="#屏幕映射" class="headerlink" title="屏幕映射"></a>屏幕映射</h3><p>这一阶段把标准设备坐标系转化为窗口坐标系。</p>
+<p>进入屏幕映射阶段时，坐标仍然是三维的。每个片元的坐标经过平移、缩放后，xy坐标被称为屏幕坐标，z坐标则被重新映射到一个范围（OpenGL为-1至1，DirectX为0至1）中。这次变换后的z坐标和屏幕坐标一齐被称为窗口坐标，这个窗口坐标最后被输送到光栅化阶段。</p>
+<h2 id="光栅化阶段"><a href="#光栅化阶段" class="headerlink" title="光栅化阶段"></a>光栅化阶段</h2><p>光栅化阶段包括三角形设定和三角形遍历两个子阶段。程序员在这个阶段并没有太大施展拳脚的余地。</p>
+<h3 id="三角形设定"><a href="#三角形设定" class="headerlink" title="三角形设定"></a>三角形设定</h3><p>三角形的相关数据在此时被计算，最终确定了哪些顶点会组成哪些片元。</p>
+<h3 id="三角形遍历"><a href="#三角形遍历" class="headerlink" title="三角形遍历"></a>三角形遍历</h3><p>遍历像素以找出在三角形内部的像素，这些像素可以被称为是一个片段（fragment），并且通过对顶点数据的插值操作来获取每一个片段的属性数据，包括片段的深度值和几何阶段得到的数据，最终片段着色器程序就在每一个片段上运行。</p>
+<h2 id="像素处理阶段"><a href="#像素处理阶段" class="headerlink" title="像素处理阶段"></a>像素处理阶段</h2><p>经过此前的一系列处理，能够到达这一步的像素都是处于图元内部的像素即片段。</p>
+<p>这是渲染管线最后一个功能阶段，又被划分为两个子阶段：像素着色和合并。</p>
+<h3 id="像素着色"><a href="#像素着色" class="headerlink" title="像素着色"></a>像素着色</h3><p>顾名思义，这一阶段的工作是计算像素的颜色。</p>
+<p>这部分是高度可编程的，程序员凭借片段着色器重夺控制权。</p>
+<h3 id="合并"><a href="#合并" class="headerlink" title="合并"></a>合并</h3><p>这一步略微复杂，但是绝大多数工作都抛给了GPU。</p>
+<p>经过片段着色器的计算，每个像素的颜色信息都被存储在颜色缓冲中，合并阶段的职责之一是将像素着色阶段产生的片段颜色与当前存储在颜色缓冲中的数据比对。这个操作也被称为ROP（Rasterization Operation Pipeline或Render Output Unit，不同的人有不同的叫法），这个过程不是完全可编程的，但是是高度可配置的，根据不同配置表现出不同的效果。</p>
+<p>合并阶段也处理了可见性的问题。</p>
+<p>大多数甚至所有图形硬件都是采用深度缓冲来处理这一问题。每个像素都存储着当前离摄像机最近的图元的z值，每绘制一个图元都将其z值与该像素的缓冲z值比较，越小表示离摄像机越近，自然越优先被显示。</p>
+<p>然而，深度缓冲仅存储单一的深度值，所以无法处理透明度的问题。事实上，透明度的问题正是深度缓冲的主要短板。</p>
+<p>有时这里还会涉及到stencil buffer，这是一种用来记录图元位置的离屏缓冲。所有的缓冲组成了<strong>帧缓冲</strong>。</p>
+<p>当图元到达并通过光栅化阶段，从摄像机视角可见的图元就会被显示在屏幕上，所显示的其实就是颜色缓冲中的内容。</p>
+<p>为了得到更符合习惯的视觉输出，会用到<strong>双缓冲</strong>，这意味着屏幕显示的渲染结果都是在back buffer离屏完成的，然后与正在显示的front buffer进行交换。这样会隐藏绘制的过程而直接呈现出最终结果。双缓冲的交换会在一个安全的时机（vertical retrace）进行。</p>
+<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>渲染管线到这里就结束了，但有些提及的概念对理解的要求较高，没啥事儿多琢磨琢磨：</p>
+<ul>
+<li>局部空间</li>
+<li>视图空间</li>
+<li>投影后的裁剪坐标系（裁剪空间，齐次坐标系）</li>
+<li>标准设备坐标系（最终裁剪在这而不是裁剪坐标系中进行）</li>
+<li>观察体（中心立方体）</li>
+<li>屏幕坐标系</li>
+<li>窗口坐标系</li>
+<li>片段</li>
+<li>帧缓冲</li>
+</ul>
+]]></content>
+      <categories>
+        <category>computer graphics</category>
+      </categories>
+      <tags>
+        <tag>real-time rendering</tag>
+        <tag>rendering pipeline</tag>
+      </tags>
+  </entry>
+</search>

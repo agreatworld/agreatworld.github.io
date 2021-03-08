@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+<html lang="en" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>讲不清渲染管线我是老母猪 - 上古藏书阁</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    
+    <meta name="description" content="写在前面渲染管线并不是一头捕捉的稀有精灵，我们要有足够的耐心去扔胶囊。这篇文章将会是一幅架在渲染管线面前的透视镜，在透视buff加持下，任何妖魔鬼怪都没有蹲草的机会(●’◡’●)。
+什么是渲染管线渲,"> 
+    <meta name="author" content="王泓泉"> 
+    <link rel="alternative" href="atom.xml" title="上古藏书阁" type="application/atom+xml"> 
+    <link rel="icon" href="/img/favicon.jpg"> 
+    
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+	<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({
+              google_ad_client: "ca-pub-8691406134231910",
+              enable_page_level_ads: true
+         });
+    </script>
+    <script async custom-element="amp-auto-ads"
+        src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
+    </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">上古藏书阁</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="https://culturecircle.github.io"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">讲不清渲染管线我是老母猪</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">讲不清渲染管线我是老母猪</h1>
+        <div class="stuff">
+            <span>四月 21, 2020</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/real-time-rendering/" rel="tag">real-time rendering</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/rendering-pipeline/" rel="tag">rendering pipeline</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <h1 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h1><p>渲染管线并不是一头捕捉的稀有精灵，我们要有足够的耐心去扔胶囊。这篇文章将会是一幅架在渲染管线面前的透视镜，在透视buff加持下，任何妖魔鬼怪都没有蹲草的机会(●’◡’●)。</p>
+<h1 id="什么是渲染管线"><a href="#什么是渲染管线" class="headerlink" title="什么是渲染管线"></a>什么是渲染管线</h1><h2 id="渲染"><a href="#渲染" class="headerlink" title="渲染"></a>渲染</h2><p>渲染是计算机将图元在显示器上显示的过程，譬如郭富城想在屏幕左半边儿画条龙，从指令发出到最终结果出现在屏幕上的这个过程即渲染。</p>
+<h2 id="管线"><a href="#管线" class="headerlink" title="管线"></a>管线</h2><p>管线即我们熟知的流水线，没错就是工厂里并不罕见的流水线。</p>
+<p>流水线是工业革命的产物，而其在图形学中的应用源自于程序员对性能的追求。</p>
+<p>至于为什么流水线能提高生产效率，任意一位工厂老板都会说的更条理清晰。</p>
+<h1 id="流水线里的四大天王"><a href="#流水线里的四大天王" class="headerlink" title="流水线里的四大天王"></a>流水线里的四大天王</h1><p>这条流水线通常会被分为几个阶段以便于描述，可以按功能划分，也可以按实现方式划分。大多数情况下，我们都是与前者打交道，后者与硬件的联系更密切。</p>
+<p>我们按功能将渲染管线顺序划分为四个（大）阶（天）段（王）：</p>
+<ol>
+<li>应用程序阶段（Application）</li>
+<li>几何阶段（Geometry Processing）</li>
+<li>光栅化阶段（Rasterization）</li>
+<li>像素处理阶段（Pixel Processing）</li>
+</ol>
+<h2 id="应用程序阶段"><a href="#应用程序阶段" class="headerlink" title="应用程序阶段"></a>应用程序阶段</h2><p>应用程序阶段是渲染管线的入口，也就是“在屏幕左半边儿画条龙”指令的发出。此阶段之所以被称为“应用程序阶段”，就是因为这类指令是从应用程序中发出的，例如CAD、3DMax等，当然还有我们画龙的程序。</p>
+<p>此时，我们完全处于CPU的环境中，完全没GPU的事儿。</p>
+<p>模型的加载、解析，碰撞检测以及碰撞结果，对外设事件的监听等工作会在这个时候进行，但显然除了模型的加载与解析，其他的例子都与渲染不搭。</p>
+<p>有必要说明的是，这个阶段是程序员完全可控的，那都是自己写的代码没有不可控的道理。<strong>有必要补充的是，既然这里说明了此阶段完全可控，那么后续的阶段必然非完全可控，甚至有的完全不可控。</strong></p>
+<h2 id="几何阶段"><a href="#几何阶段" class="headerlink" title="几何阶段"></a>几何阶段</h2><p>对图形工作者而言，几何阶段是最为复杂的阶段，因为GPU在这里进入我们的视野，同时几何阶段又是高度可控的。</p>
+<h3 id="小四大天王"><a href="#小四大天王" class="headerlink" title="小四大天王"></a>小四大天王</h3><p>随着谭咏麟、梅艳芳、张国荣等老一辈歌手在九十年代初逐渐淡出乐坛，几个新人先后逐步走上荧幕，后来被媒体一齐宣传为四大天王。</p>
+<p>随着四人先后淡出，谭咏麟在2004年抛出了新四大天王的概念，不过是哪四位我不告诉你(●ˇ∀ˇ●)。我要告诉你的是几何阶段里的“小四大天王”：</p>
+<ol>
+<li>顶点着色（Vertex Shading）</li>
+<li>投影（Projection）</li>
+<li>裁剪（Clipping）</li>
+<li>屏幕映射（Screen Mapping）</li>
+</ol>
+<p>这四个子阶段同样是按功能划分的。</p>
+<h3 id="顶点着色"><a href="#顶点着色" class="headerlink" title="顶点着色"></a>顶点着色</h3><p>游戏制作中的着色器就是从这里身穿神隐斗篷（神秘感）手持破魔刀进入程序员视线的，这把破魔刀确实斩倒了一片游戏程序员。</p>
+<p>先来说说什么是着色：着色是计算光照在材质表面的效果这一过程，着色器程序就是实现这一计算的程序。</p>
+<p>顶点着色的主要工作是计算顶点坐标以及输出程序员希望得到的数据譬如法线、贴图坐标。</p>
+<p>曾经大部分的顶点着色是根据顶点坐标、法线等信息计算光照在该处表现的颜色，并将最终结果（颜色值）存储在顶点数据中，在后续阶段中，这个颜色会被包含该顶点的图元自动插值处理。但那是曾经辉煌的顶点着色器，随着现代GPU的出现，顶点着色器的“着色”能力被无情剥夺，沦为任劳任怨的打工仔＞︿＜，只为计算顶点相关数据而不计算光照效果，真正的着色权转移到了还未出场的片段着色器手中。</p>
+<p>接下来我要阐述的是如何计算顶点相关数据，但不包含涉及到的数学知识。</p>
+<p>加载的模型最初在局部空间中，通过model transform把模型的坐标都转换到唯一的世界坐标系中，这个世界坐标系是一个欧氏空间（对应即将提到的齐次空间）。</p>
+<p>接下来是view transform视图变换，把模型变换到一个以摄像机为原点的视图空间（欧式空间）中。摄像机就是现实中我们的眼睛，在世界空间中有一个坐标和一个朝向，这很好理解。<strong>为了方便投影和裁剪，</strong>摄像机和所有模型都会被变换到视图空间中。视图变换的目的是把摄像机放置在原点并设置其朝向，但是具体的朝向与图形库有关，OpenGL采取右手系（摄像机面向-z轴，上面是+y轴，+x轴指向右方），而DirectX采取左手系。</p>
+<p>按功能区分的顶点着色子阶段就到这里结束。顶点着色的计算是在GPU中执行的，但是此时GPU只是被当工作普通的CPU使用，GPU的图形特性并没有得到展示的机会。</p>
+<h6 id="顶点着色之后的可选阶段"><a href="#顶点着色之后的可选阶段" class="headerlink" title="顶点着色之后的可选阶段"></a>顶点着色之后的可选阶段</h6><p>顶点着色之后有三个可选的操作，依次是：</p>
+<ol>
+<li>曲面细分（根据摄像机远近来改变图元绘制的精度以提高性能）</li>
+<li>几何着色（典型的应用是粒子特效和毛发渲染）</li>
+<li>Stream Output（将得到的数据输出，管线到此为止不再继续）</li>
+</ol>
+<h3 id="投影"><a href="#投影" class="headerlink" title="投影"></a>投影</h3><p>常见的投影策略有正交投影和透视投影，没有概念的读者一查便知。</p>
+<p>在2D游戏项目中，一般使用正交投影；而透视投影则是在3D游戏项目中应用广泛。通常投影方式会作为摄像机的属性公开给用户。</p>
+<p>与前两次变换一样，投影也是用矩阵来实现的，所以有时也被看作是几何变换的一部分（譬如Unity Shader Lab中的MVP矩阵）。投影之后，我们就说模型处于裁剪坐标系中，与之前不同，这是一个齐次坐标系。</p>
+<h6 id="几何变换"><a href="#几何变换" class="headerlink" title="几何变换"></a>几何变换</h6><p>几何变换是model transform、view transform、projection transform的统称，并且是完全可控的，之后的阶段除了像素处理高度可编程，其他处理大都交给了固定硬件完成，不过对外提供了一定的配置空间。</p>
+<h3 id="裁剪"><a href="#裁剪" class="headerlink" title="裁剪"></a>裁剪</h3><p>在裁剪之前，先要进行透视除法，这会把模型变换到三维的<strong>标准设备坐标系（欧式空间）</strong>中。</p>
+<p>裁剪以统一的观察体为标准，这个观察体是一个正方体，两个极端点分别是（-1，-1，-1）和（1，1，1）。但是用户也可以加入其他的裁剪平面。</p>
+<p>完全在观察体内的图元会被完全保留；部分在观察体内的图元会被切割；完全不在观察体内的图元会被丢弃。</p>
+<p>经过这一系列的矩阵变换，z坐标会被存储到z缓冲中。</p>
+<h3 id="屏幕映射"><a href="#屏幕映射" class="headerlink" title="屏幕映射"></a>屏幕映射</h3><p>这一阶段把标准设备坐标系转化为窗口坐标系。</p>
+<p>进入屏幕映射阶段时，坐标仍然是三维的。每个片元的坐标经过平移、缩放后，xy坐标被称为屏幕坐标，z坐标则被重新映射到一个范围（OpenGL为-1至1，DirectX为0至1）中。这次变换后的z坐标和屏幕坐标一齐被称为窗口坐标，这个窗口坐标最后被输送到光栅化阶段。</p>
+<h2 id="光栅化阶段"><a href="#光栅化阶段" class="headerlink" title="光栅化阶段"></a>光栅化阶段</h2><p>光栅化阶段包括三角形设定和三角形遍历两个子阶段。程序员在这个阶段并没有太大施展拳脚的余地。</p>
+<h3 id="三角形设定"><a href="#三角形设定" class="headerlink" title="三角形设定"></a>三角形设定</h3><p>三角形的相关数据在此时被计算，最终确定了哪些顶点会组成哪些片元。</p>
+<h3 id="三角形遍历"><a href="#三角形遍历" class="headerlink" title="三角形遍历"></a>三角形遍历</h3><p>遍历像素以找出在三角形内部的像素，这些像素可以被称为是一个片段（fragment），并且通过对顶点数据的插值操作来获取每一个片段的属性数据，包括片段的深度值和几何阶段得到的数据，最终片段着色器程序就在每一个片段上运行。</p>
+<h2 id="像素处理阶段"><a href="#像素处理阶段" class="headerlink" title="像素处理阶段"></a>像素处理阶段</h2><p>经过此前的一系列处理，能够到达这一步的像素都是处于图元内部的像素即片段。</p>
+<p>这是渲染管线最后一个功能阶段，又被划分为两个子阶段：像素着色和合并。</p>
+<h3 id="像素着色"><a href="#像素着色" class="headerlink" title="像素着色"></a>像素着色</h3><p>顾名思义，这一阶段的工作是计算像素的颜色。</p>
+<p>这部分是高度可编程的，程序员凭借片段着色器重夺控制权。</p>
+<h3 id="合并"><a href="#合并" class="headerlink" title="合并"></a>合并</h3><p>这一步略微复杂，但是绝大多数工作都抛给了GPU。</p>
+<p>经过片段着色器的计算，每个像素的颜色信息都被存储在颜色缓冲中，合并阶段的职责之一是将像素着色阶段产生的片段颜色与当前存储在颜色缓冲中的数据比对。这个操作也被称为ROP（Rasterization Operation Pipeline或Render Output Unit，不同的人有不同的叫法），这个过程不是完全可编程的，但是是高度可配置的，根据不同配置表现出不同的效果。</p>
+<p>合并阶段也处理了可见性的问题。</p>
+<p>大多数甚至所有图形硬件都是采用深度缓冲来处理这一问题。每个像素都存储着当前离摄像机最近的图元的z值，每绘制一个图元都将其z值与该像素的缓冲z值比较，越小表示离摄像机越近，自然越优先被显示。</p>
+<p>然而，深度缓冲仅存储单一的深度值，所以无法处理透明度的问题。事实上，透明度的问题正是深度缓冲的主要短板。</p>
+<p>有时这里还会涉及到stencil buffer，这是一种用来记录图元位置的离屏缓冲。所有的缓冲组成了<strong>帧缓冲</strong>。</p>
+<p>当图元到达并通过光栅化阶段，从摄像机视角可见的图元就会被显示在屏幕上，所显示的其实就是颜色缓冲中的内容。</p>
+<p>为了得到更符合习惯的视觉输出，会用到<strong>双缓冲</strong>，这意味着屏幕显示的渲染结果都是在back buffer离屏完成的，然后与正在显示的front buffer进行交换。这样会隐藏绘制的过程而直接呈现出最终结果。双缓冲的交换会在一个安全的时机（vertical retrace）进行。</p>
+<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>渲染管线到这里就结束了，但有些提及的概念对理解的要求较高，没啥事儿多琢磨琢磨：</p>
+<ul>
+<li>局部空间</li>
+<li>视图空间</li>
+<li>投影后的裁剪坐标系（裁剪空间，齐次坐标系）</li>
+<li>标准设备坐标系（最终裁剪在这而不是裁剪坐标系中进行）</li>
+<li>观察体（中心立方体）</li>
+<li>屏幕坐标系</li>
+<li>窗口坐标系</li>
+<li>片段</li>
+<li>帧缓冲</li>
+</ul>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="false">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title='0' data-url='http://link.hhtjim.com/163/425570952.mp3'></li>
+                        
+                    
+                        
+                            <li title='1' data-url='http://link.hhtjim.com/163/425570952.mp3'></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+    <div id='gitalk-container' class="comment link"
+		data-enable='false'
+        data-ae='false'
+        data-ci=''
+        data-cs=''
+        data-r=''
+        data-o=''
+        data-a=''
+        data-d='false'
+    >查看评论</div>
+
+
+    </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>

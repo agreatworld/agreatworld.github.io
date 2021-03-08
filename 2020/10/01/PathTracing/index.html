@@ -1,0 +1,251 @@
+
+<!DOCTYPE html>
+<html lang="en" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PathTracing - 上古藏书阁</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    
+    <meta name="description" content="OverviewPathTracing是实现光线追踪的一种方法，与Whitted-Style Ray Tracing不同，路径追踪是物理真实的。如果渲染的是现实中存在的模型，那么他们的outlook,"> 
+    <meta name="author" content="王泓泉"> 
+    <link rel="alternative" href="atom.xml" title="上古藏书阁" type="application/atom+xml"> 
+    <link rel="icon" href="/img/favicon.jpg"> 
+    
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+	<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({
+              google_ad_client: "ca-pub-8691406134231910",
+              enable_page_level_ads: true
+         });
+    </script>
+    <script async custom-element="amp-auto-ads"
+        src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
+    </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">上古藏书阁</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="https://culturecircle.github.io"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">PathTracing</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">PathTracing</h1>
+        <div class="stuff">
+            <span>十月 01, 2020</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/offline-rendering/" rel="tag">offline rendering</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/raytracing/" rel="tag">raytracing</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <h1 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h1><p>PathTracing是实现光线追踪的一种方法，与Whitted-Style Ray Tracing不同，路径追踪是物理真实的。如果渲染的是现实中存在的模型，那么他们的outlook是可以达到肉眼无法区分的一致性，误差仅存在于计算精度。</p>
+<p>Whitted-Style Ray Tracing的大致思路如下：从摄像机向某一方向打出一条光线，光线与场景中的物体相交，计算交点的颜色，其中需要继续“反射”光线递归性计算。</p>
+<p>路径追踪的实现基础也是如此，只是在“计算交点颜色”这一步中用物理学，准确地说是辐射度量学(Radiometry)来保证计算结果的物理真实性。</p>
+<h1 id="Radiometry"><a href="#Radiometry" class="headerlink" title="Radiometry"></a>Radiometry</h1><ol>
+<li>Energy: just what u thought, which measured in units of joules</li>
+<li>Power / Flux: energy emitted, reflected, transmitted or received, per unit time</li>
+<li>Intensity: power per unit solid angle, emitted by a point light source</li>
+<li>Irradiance: power per unit area incident on a surface point</li>
+<li>Radiance: <ol>
+<li>power emitted, reflected, transmitted or received by a surface, per unit solid angle, per projected unit area</li>
+<li>irradiance per unit solid angle</li>
+<li>intensity per projected unit area</li>
+</ol>
+</li>
+</ol>
+<p>在场景中所有对光的描述都是基于radiance的。我们已经可以看到，不论是在Whitted-Style RayTracing还是最常见的Blinn-Phong着色模型中都并不涉及这些概念，自然不具备物理真实性。</p>
+<h1 id="BRDF"><a href="#BRDF" class="headerlink" title="BRDF"></a>BRDF</h1><p>为什么需要Bidirectional Reflectance Distribution Function？</p>
+<p>在之前简略提到的Whitted-Style RayTracing过程中，细心的小伙伴能够发现“反射”是打了引号的。在现实场景中，一条光线打在物体表面后，一部分光会被反射，那么是如何反射呢？我们知道光滑表面和粗糙表面会造成两种区别较大的现象：镜面反射和漫反射，其中对漫反射的简单理解就是一条光线打中后被均匀地向整个半球面反射，这与BRDF有一定相似性。</p>
+<p>双向反射分布函数就是描述了一条光线打在物体表面后，有多少光会被反射到某个方向上的这样一个函数。</p>
+<p>在宏观上，BRDF可被理解为“材质”。这很好make sense：光线打在表面，我们会看到高亮区域还是仅仅颜色变化？抑或是沉重的质感还是轻盈？这可不就是材质的作用。</p>
+<h1 id="The-Rendering-Equation"><a href="#The-Rendering-Equation" class="headerlink" title="The Rendering Equation"></a>The Rendering Equation</h1><p><a target="_blank" rel="noopener" href="http://www.cse.chalmers.se/edu/year/2016/course/TDA361/rend_eq.pdf">Paper Written by Kajiya in 1986</a> 给出了渲染方程的定义以及其意义。</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/PathTracing/the-rendering-equation.png" alt="The Rendering Equation"></p>
+<p>表达式已经给出，现在需要做的就是求解。注意，我们只要这个积分的数值解，所以完全不必去求其不定积分，况且成功解出的可能性微乎其微。</p>
+<p>正着是采取一些数值方法求近似解，譬如<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-cn/%E8%92%99%E5%9C%B0%E5%8D%A1%E7%BE%85%E6%96%B9%E6%B3%95">Monte Carlo数值方法 wiki</a>。</p>
+<p>要得到一个像素点较为准确的着色结果，无疑需要许多条反射光线来distribute。这听起来很有道理，一根光线打到物体表面，反射出20条甚至更多光线继续计算，最终将这些结果做一个平均得到较为理想的结果，并且也符合Monte Carlo积分的思维。但是仔细想想，这里面有一个隐藏问题：指数爆炸。一条光线产生了20条反射光线，那么下一次递归就会有400条光线，即使在当今的硬件条件下，这也是不可接受的。</p>
+<p>那么光线与场景相交一次反射光线的数量限制在多少才能够避免指数爆炸呢？只能是1。可是这样又会造成结果极大的偏差或噪点过多。</p>
+<p>这里给出一种解决方法是对每一个像素点重复计算结果，每次反射都只选取一个方向进行递归计算。显然，对每个像素点的采样次数越多，结果就会越理想，同时性能消耗也会更大，非常典型的trade-off。</p>
+<h1 id="对光源采样"><a href="#对光源采样" class="headerlink" title="对光源采样"></a>对光源采样</h1><p>我们知道，看到某个物体是因为光线进入了眼睛。随着递归深入，会发现并不是所有光线最终都能打到光源上，或者说是有效的，那么这部分计算就算是徒劳无功了，这是我们要规避的。规避的方法正如看到的那样：对光源采样。</p>
+<p>Monte Carlo积分要求对积分区域进行基于某一概率密度函数的采样，积分区域的变化不仅直接导致积分限和积分式的变化，还改变了采样区域。</p>
+<p>在此之前，我们计算的是在相交点的上半球的相应积分，如今要转换到光源区域上，当然，这里采用的正是Area Light Source，由此引出Radiometry中的各概念定义。如果这些概念稍微熟悉的话，不难发觉现在面对的问题是如何将单位面积转化为对应于一个半球的立体角。</p>
+<p>投影到球面等价于投影到与投影区域中心和球心连线垂直的那个平面。如此，再联立solid angle定义得出</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/PathTracing/%E5%AF%B9%E5%85%89%E6%BA%90%E9%87%87%E6%A0%B7%E7%A7%AF%E5%88%86%E8%BD%AC%E6%8D%A2.png" alt="对光源采样积分转换"></p>
+<ul>
+<li><p>x: 相交点对应半球的球心</p>
+</li>
+<li><p>x‘: 光源区域中心</p>
+</li>
+<li><p>dw’: 对相交点对应半球的微分立体角</p>
+</li>
+<li><p>dA’: 光源区域微分面积</p>
+</li>
+<li><p>θ’: 光源区域法线与光源区域中心和半球球心连线的夹角</p>
+</li>
+</ul>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/PathTracing/%E5%AF%B9%E5%85%89%E6%BA%90%E7%A7%AF%E5%88%86%E7%A4%BA%E6%84%8F%E5%9B%BE.png" alt="对光源积分示意图"></p>
+<p>只考虑半球的原因是光线不会被反射到下半球面。</p>
+<h1 id="Russian-Roulette"><a href="#Russian-Roulette" class="headerlink" title="Russian Roulette"></a>Russian Roulette</h1><p>现在，每一次对相交点着色要计算三种contribution：本身的自发光、光源对着色点的直接光照、场景中其他物体对着色点的间接光照。</p>
+<p>其中间接光照的思路与Whitted-Style RayTracing中是一致的，继续出射光线递归求交，什么时候才停止不再继续递归呢？采用<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-cn/%E4%BF%84%E7%BE%85%E6%96%AF%E8%BC%AA%E7%9B%A4">俄罗斯轮盘赌 wiki</a>的思路来处理这个问题。</p>
+<p>给定某个概率，若命中才继续向下计算间接光着色，否则不再继续递归。这种方式无疑会造成结果的不准确，因为这是一个概率性问题，没可能每次计算都得到相同的结果，更何况这样一个概率还是随意设定的。事实上，在这各局部问题中，有一个巧妙的treat可以减小误差。引入俄罗斯轮盘赌的目的仅在给递归一个停止的可能性，绝不希望对渲染结果造成较大的质量损失。</p>
+<p>如果计算命中与不命中的期望：<code>L = P * result + (1 - P) * 0</code>（若未通过俄罗斯轮盘赌，计算结果为0）</p>
+<p>巧妙的是，如果用<code>result / P</code>代替<code>result</code>，我们可以得到其期望不变的结果，这是我们想要的。</p>
+<p>既然如此，那么<code>P</code>设置的大小对渲染结果有没有影响呢？答案是有。</p>
+<p>下面给出几张不同<code>P</code>渲染的结果图（Sample Per Pixel = 1）</p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/PathTracing/0.001P_RR.png" alt="0.001P_RR"></p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/PathTracing/0.01P_RR.png" alt="0.01P_RR"></p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/PathTracing/0.1P_RR.png" alt="0.1P_RR"></p>
+<p><img src="http://blog-whq.oss-cn-hangzhou.aliyuncs.com/%E5%8D%9A%E5%AE%A2%E7%94%A8%E5%9B%BE/PathTracing/0.6P_RR.png" alt="0.6P_RR"></p>
+<p>随着<code>P_RR</code>增大，我们可以大致看出这些变化：</p>
+<ul>
+<li>光源区域的天花板变亮</li>
+<li>整个场景变亮</li>
+<li>渲染结果的白色噪点变多</li>
+</ul>
+<p><strong>天花板变亮：</strong>天花板与面光源平行，所以只有间接光照能够达到。之前已经提到过，<code>P_RR</code>越大，间接光照的计算结果越准确。当概率很小很小时，一次间接光照都不会计算，所以表现出来黑色。</p>
+<p><strong>场景变亮：</strong>原因同样是间接光照的计算次数。值得一提的是，假设间接光可以递归计算无数次，结果并不会趋于无穷大，而是收敛到某一上界，从自然界现象就可以得出这一结论。</p>
+<p><strong>白色噪点变多：</strong>这与间接光照有关。其实这是传统的Monte Carlo方法无法根本解决的一个问题，并且这是其渲染结果唯一的失真。可以采用重要性采样等方法来降低采样的方差以减少噪点。</p>
+<h1 id="What-we-didn’t-cover-here"><a href="#What-we-didn’t-cover-here" class="headerlink" title="What we didn’t cover here"></a>What we didn’t cover here</h1><p>尽管这里已经讨论了不少问题，但仍然有很多东西没有提及。譬如：</p>
+<ul>
+<li>光线如何与物体求交</li>
+<li>光线求交时的加速结构</li>
+<li>Radiance和最终在monitor上显示出来的颜色有什么关系</li>
+<li>…</li>
+</ul>
+<h5 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h5><p><a target="_blank" rel="noopener" href="http://www.cse.chalmers.se/edu/year/2016/course/TDA361/rend_eq.pdf"><em>The Rendering Equation</em> by Kajiya</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cs.princeton.edu/courses/archive/fall10/cos526/papers/zimmerman98.pdf"><em>Developing the Rendering Equations</em> by Kurt Zimmerman</a></p>
+<p><a target="_blank" rel="noopener" href="https://sites.cs.ucsb.edu/~lingqi/teaching/games101.html"><em>games101 lecture 13-16</em> by Linqi Yan</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.scratchapixel.com/code.php?id=3&origin=/lessons/3d-basic-rendering/introduction-to-ray-tracing">一个200+行的Whitted-Style RayTracer</a></p>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="false">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title='0' data-url='http://link.hhtjim.com/163/425570952.mp3'></li>
+                        
+                    
+                        
+                            <li title='1' data-url='http://link.hhtjim.com/163/425570952.mp3'></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+    <div id='gitalk-container' class="comment link"
+		data-enable='false'
+        data-ae='false'
+        data-ci=''
+        data-cs=''
+        data-r=''
+        data-o=''
+        data-a=''
+        data-d='false'
+    >查看评论</div>
+
+
+    </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>

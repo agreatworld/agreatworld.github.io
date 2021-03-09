@@ -288,4 +288,24 @@
         <tag>rendering pipeline</tag>
       </tags>
   </entry>
+  <entry>
+    <title>指针与数组的组合拳</title>
+    <url>/2021/03/09/%E6%8C%87%E9%92%88%E4%B8%8E%E6%95%B0%E7%BB%84%E7%9A%84%E7%BB%84%E5%90%88%E6%8B%B3/</url>
+    <content><![CDATA[<p>指针与数组在内存中非常近似，但是也有无法忽视的区别，恰恰在不经意间就可能触及。</p>
+<p>认为指针与数组一样的观点往往源于“将数组传递到函数中时，其呈现出来的形式就是指针”，这确实是将指针和数组放在一起考虑的最直观印象。众所周知，数组名实际上是指向数组首元素的一个指针。但是数组有大小，而指针无，这是二者在应用时表现出来的不同的内在支撑，同时必须提及其中的外生因素“赋值运算符”。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">func</span><span class="params">(<span class="keyword">int</span> <span class="built_in">array</span>[])</span></span>&#123;</span><br><span class="line">	<span class="comment">// do something</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> <span class="built_in">array</span>[<span class="number">5</span>] = &#123;</span><br><span class="line">        <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span></span><br><span class="line">    &#125;;</span><br><span class="line">    func(<span class="built_in">array</span>); <span class="comment">// line 19</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第19行传入一个数组给函数<code>func</code>，此时传入参数的实质是拷贝，将指向数组首元素的指针拷贝给形参，这个过程丢失了数组的大小这个信息。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> <span class="built_in">array</span>[<span class="number">5</span>];</span><br><span class="line"><span class="keyword">auto</span> t1 = <span class="built_in">array</span>;</span><br><span class="line"><span class="keyword">auto</span> &amp;t2 = <span class="built_in">array</span>;</span><br></pre></td></tr></table></figure>
+
+<p>在这种赋值的过程中，<code>t1</code>遇见的事情和上面传递参数时一致，数组丢失了“大小”这个维度，退化成了一个指针，而<code>t2</code>保留了完整的信息，仍然是一个数组（的引用），可以用<code>sizeof</code>测试其大小。</p>
+<p>“赋值运算符”的本质是拷贝，这和传递形参时是一致的，这时数组从左值转化成右值，左值代表的是一块内存区域，而右值代表的时存储在内存区域的数据（value）。</p>
+]]></content>
+      <categories>
+        <category>c++</category>
+      </categories>
+      <tags>
+        <tag>c++</tag>
+      </tags>
+  </entry>
 </search>
